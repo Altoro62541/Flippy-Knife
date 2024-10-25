@@ -1,26 +1,27 @@
 using UnityEngine;
+using System;
 public class KnifeHit : MonoBehaviour
 {
+    private Knife _knife;
+    public event Action OnHit;
+    private void Start()
+    {
+        _knife = GetComponent<Knife>();
+        
+    }
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (!KnifeThrow._isActive)
-            return;
-
-        KnifeThrow._isActive = false;
-
-        if(other.collider.tag == "Log")
+        if(other.collider.GetComponent<LogRotation>())
         {
-            KnifeThrow._knifeRb.velocity = new Vector2(0, 0);
-            KnifeThrow._knifeRb.bodyType = RigidbodyType2D.Kinematic;
+            _knife.LogHit();
             transform.SetParent(other.collider.transform);
-
-            KnifeThrow._knifeCollider.offset = new Vector2(KnifeThrow._knifeCollider.offset.x, -0.4f);
-            KnifeThrow._knifeCollider.size = new Vector2(KnifeThrow._knifeCollider.size.x, 1.2f);
-            //TODO: Спавн следующего ножика.
+            OnHit?.Invoke();
+            
         }
-        else if(other.collider.tag == "Knife")
+        else if(other.collider.GetComponent<Knife>())
         {
-            KnifeThrow._knifeRb.velocity = new Vector2(KnifeThrow._knifeRb.velocity.x, -2); 
+            _knife.Down();
+            _knife.IsActive = false;
         }
     }
 }
